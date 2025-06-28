@@ -58,9 +58,6 @@ class DazuLaserMarkerClient:
 
         Returns:
             bool: 是否成功建立连接
-
-        Raises:
-            ConnectionError: 当连接失败时抛出
         """
         try:
             self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -71,7 +68,7 @@ class DazuLaserMarkerClient:
         except Exception as e:
             self.logger.error(f"连接失败: {str(e)}")
             self.close()
-            raise ConnectionError(f"无法连接到设备: {str(e)}")
+            return False
 
     def send_command(self, command: str, wait_response: bool = False) -> Optional[str]:
         """发送指令到打标机
@@ -88,7 +85,7 @@ class DazuLaserMarkerClient:
             TimeoutError: 当操作超时时抛出
         """
         if not self._is_connected():
-            self.logger.warning("连接不可用，尝试重新连接...")
+            self.logger.warning("连接不可用, 尝试重新连接...")
             if not self.connect():
                 raise ConnectionError("无法建立有效连接")
 

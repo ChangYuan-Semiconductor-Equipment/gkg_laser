@@ -11,7 +11,7 @@ class LaserController:
         self.client = DazuLaserMarkerClient(host, port)
         self.logger = logging.getLogger("LaserController")
 
-    def execute_command(self, command: LaserCommand, payload: str = "") -> bool:
+    def execute_command(self, command: LaserCommand, payload: str = "", wait_response=True) -> bool:
         """执行激光控制指令
 
         Args:
@@ -26,21 +26,18 @@ class LaserController:
             full_command = f"{command.send}{payload}"
 
             # 发送指令并等待响应
-            response = self.client.send_command(full_command, wait_response=True)
-
-            # 验证响应
-            if response == command.success:
-                self.logger.info(f"{command.name} 操作成功")
-                return True
-            elif response == command.fail:
-                self.logger.error(f"{command.name} 操作失败")
+            response = self.client.send_command(full_command, wait_response=wait_response)
+            if wait_response:
+                if response == command.success_res:
+                    self.logger.info("执行 %s 命令成功, 返回数据是: %s", full_command, response)
+                    return True
+                self.logger.warning("执行 %s 命令失败, 返回数据是: %s", full_command, response)
                 return False
-            else:
-                self.logger.warning(f"收到未知响应: {response}")
-                return False
-        except TimeoutError:
-            self.logger.error(f"{command.name} 操作超时")
+            self.logger.info("不判断返回结果, 执行 %s 命令成功, 返回数据是: %s", full_command, response)
+            return True
+        except ConnectionError:
+            self.logger.error("激光打印设备未打开服务端.")
             return False
         except Exception as e:
-            self.logger.error(f"{command.name} 发生异常: {str(e)}")
+            self.logger.error("执行 %s 发生异常: %s", command.name, str(e))
             return False

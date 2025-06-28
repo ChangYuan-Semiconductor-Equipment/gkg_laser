@@ -48,4 +48,3 @@ class LaserCommand(Enum):
     def fail(self) -> str:
         """获取失败响应"""
         return self.fail_res
-
