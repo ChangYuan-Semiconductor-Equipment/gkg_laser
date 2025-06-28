@@ -1,6 +1,6 @@
 [project]
 name = "gkg-laser"
-version = "0.1.0"
+version = "1.0.0"
 description = "大族激光控制"
 authors = [
     {name = "LiuWei",email = "183074632@qq.com"}
